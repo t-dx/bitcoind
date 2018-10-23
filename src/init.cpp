@@ -8,7 +8,7 @@
 #endif
 
 #include <init.h>
-
+#include <iostream>
 #include <addrman.h>
 #include <amount.h>
 #include <chain.h>
@@ -1441,6 +1441,31 @@ bool AppInitMain()
 
                 pcoinsdbview.reset(new CCoinsViewDB(nCoinDBCache, false, fReset || fReindexChainState));
                 pcoinscatcher.reset(new CCoinsViewErrorCatcher(pcoinsdbview.get()));
+                
+                CCoinsViewCursor *cursor = pcoinsdbview->Cursor();
+                std::cout << cursor->GetBestBlock().GetHex() << "\n";
+
+                while(cursor->Valid()) {
+                    COutPoint out;
+                    Coin coin;
+                    // cursor->Next();
+                    cursor->GetKey(out);
+                    cursor->GetValue(coin);
+                    std::cout << 
+                    out.hash.GetHex() <<
+                    ";" << 
+                    out.n <<
+                    ";" << 
+                    coin.nHeight << 
+                    ";" << 
+                    coin.out.nValue <<
+                    ";" << 
+                    HexStr(coin.out.scriptPubKey) <<
+                    "\n";
+                    cursor->Next();
+                }
+                return InitError(_("Hello World"));
+
 
                 // If necessary, upgrade from older database format.
                 // This is a no-op if we cleared the coinsviewdb with -reindex or -reindex-chainstate
